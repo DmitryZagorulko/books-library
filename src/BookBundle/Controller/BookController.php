@@ -3,10 +3,12 @@
 namespace BookBundle\Controller;
 
 use BookBundle\Entity\Book;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * Book controller.
@@ -23,12 +25,24 @@ class BookController extends Controller
      */
     public function indexAction()
     {
-        $em = $this->getDoctrine()->getManager();
+        $cache = new FilesystemAdapter;
 
-        $books = $em->getRepository('BookBundle:Book')->findAll();
+        $booksAll = $cache->getItem('books.all');
+
+        if (!$booksAll->isHit()) {
+            $em = $this->getDoctrine()->getManager();
+            
+            $books = $em->getRepository('BookBundle:Book')->findAll();
+
+            $booksAll->set($books);
+            $booksAll->expiresAfter(\DateInterval::createFromDateString('24 hour'));
+            $cache->save($booksAll);
+        }
+
+        $booksCache = $booksAll->get();
 
         return $this->render('@Book/book/index.html.twig', array(
-            'books' => $books,
+            'books' => $booksCache,
         ));
     }
 
@@ -37,6 +51,7 @@ class BookController extends Controller
      *
      * @Route("/new", name="_new")
      * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function newAction(Request $request)
     {
@@ -79,6 +94,7 @@ class BookController extends Controller
      *
      * @Route("/{id}/edit", name="_edit")
      * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function editAction(Request $request, Book $book)
     {
@@ -104,6 +120,7 @@ class BookController extends Controller
      *
      * @Route("/book/{id}", name="_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function deleteAction(Request $request, Book $book)
     {
