@@ -5,6 +5,7 @@ namespace BookBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class BookType extends AbstractType
 {
@@ -13,8 +14,16 @@ class BookType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name')->add('author')->add('cover')->add('file')->add('readIt')->add('allowDownload');
-    }/**
+        $builder
+            ->add('name')
+            ->add('author')
+            ->add('cover', FileType::class)
+            ->add('file', FileType::class)
+            ->add('readIt')
+            ->add('allowDownload');
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
@@ -31,6 +40,4 @@ class BookType extends AbstractType
     {
         return 'bookbundle_book';
     }
-
-
 }

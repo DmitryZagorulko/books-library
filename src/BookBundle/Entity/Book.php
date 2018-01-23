@@ -38,14 +38,14 @@ class Book
     /**
      * @var string
      *
-     * @ORM\Column(name="cover", type="string", length=255)
+     * @ORM\Column(name="cover", type="string", length=255, nullable=true)
      */
     private $cover;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="file", type="string", length=255)
+     * @ORM\Column(name="file", type="string", length=255, nullable=true)
      */
     private $file;
 
@@ -218,4 +218,3 @@ class Book
         return $this->allowDownload;
     }
 }
-

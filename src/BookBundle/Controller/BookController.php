@@ -26,14 +26,11 @@ class BookController extends Controller
     public function indexAction()
     {
         $cache = new FilesystemAdapter;
-
         $booksAll = $cache->getItem('books.all');
 
         if (!$booksAll->isHit()) {
             $em = $this->getDoctrine()->getManager();
-            
             $books = $em->getRepository('BookBundle:Book')->findAll();
-
             $booksAll->set($books);
             $booksAll->expiresAfter(\DateInterval::createFromDateString('24 hour'));
             $cache->save($booksAll);
@@ -64,28 +61,12 @@ class BookController extends Controller
             $em->persist($book);
             $em->flush();
 
-            return $this->redirectToRoute('_show', array('id' => $book->getId()));
+            return $this->redirectToRoute('_index', array('id' => $book->getId()));
         }
 
         return $this->render('@Book/book/new.html.twig', array(
             'book' => $book,
             'form' => $form->createView(),
-        ));
-    }
-
-    /**
-     * Finds and displays a book entity.
-     *
-     * @Route("/book/{id}", name="_show")
-     * @Method("GET")
-     */
-    public function showAction(Book $book)
-    {
-        $deleteForm = $this->createDeleteForm($book);
-
-        return $this->render('@Book/book/show.html.twig', array(
-            'book' => $book,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
