@@ -61,7 +61,7 @@ class BookController extends Controller
             $em->persist($book);
             $em->flush();
 
-            return $this->redirectToRoute('_index', array('id' => $book->getId()));
+            return $this->redirectToRoute('_index');
         }
 
         return $this->render('@Book/book/new.html.twig', array(
@@ -129,7 +129,6 @@ class BookController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('_delete', array('id' => $book->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
 }
