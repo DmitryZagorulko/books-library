@@ -28,8 +28,12 @@
             <tr>
                 <td>{{ book.name }}</td>
                 <td>{{ book.author }}</td>
-                <td>{{ book.cover }}</td>
-                <td>{{ book.file }}</td>
+                {% if book.cover %}
+                    <td><img src="{{asset('uploads/covers/') ~ book.cover}}"/></td>
+                {% endif %}
+                {% if book.file %}
+                    <td><img src="{{asset('uploads/files/') ~ book.file}}"/></td>
+                {% endif %}
                 <td>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</td>
                 <td>{% if book.allowDownload %}Yes{% else %}No{% endif %}</td>
                 {% if is_granted('ROLE_ADMIN') %}

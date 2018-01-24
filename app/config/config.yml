@@ -74,5 +74,6 @@ fos_user:
     service:                               
         mailer: fos_user.mailer.twig_swift 
     from_email:
-        address: "test@test.te"
-        sender_name: "test"
+        address: "%mailer_user%"
+        sender_name: "%mailer_user%"
+        

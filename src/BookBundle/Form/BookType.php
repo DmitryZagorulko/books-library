@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use BookBundle\Entity\Book;
 
 class BookType extends AbstractType
 {
@@ -17,8 +18,8 @@ class BookType extends AbstractType
         $builder
             ->add('name')
             ->add('author')
-            ->add('cover', FileType::class)
-            ->add('file', FileType::class)
+            ->add('cover', FileType::class, ['data_class' => null, 'required' => false])
+            ->add('file', FileType::class, ['data_class' => null, 'required' => false])
             ->add('readIt')
             ->add('allowDownload');
     }
@@ -29,7 +30,7 @@ class BookType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'BookBundle\Entity\Book'
+            'data_class' => Book::class,
         ));
     }
 
