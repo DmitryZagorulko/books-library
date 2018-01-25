@@ -18,9 +18,25 @@ class BookType extends AbstractType
         $builder
             ->add('name')
             ->add('author')
-            ->add('cover', FileType::class, ['data_class' => null, 'required' => false])
-            ->add('file', FileType::class, ['data_class' => null, 'required' => false])
-            ->add('readIt')
+            ->add(
+                'cover',
+                FileType::class,
+                [
+                    'data_class' => null,
+                    'required' => false,
+                    'empty_data' =>$options['data']->getCover()
+                ]
+            )
+            ->add(
+                'file',
+                FileType::class,
+                [
+                    'data_class' => null,
+                    'required' => false,
+                    'empty_data' =>$options['data']->getFile()
+                ]
+            )
+            ->add('readIt', null, ['widget' => 'single_text'])
             ->add('allowDownload');
     }
 

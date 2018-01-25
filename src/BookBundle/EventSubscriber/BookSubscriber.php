@@ -55,7 +55,7 @@ class BookSubscriber implements EventSubscriber
             $file = $entity->getFile();
             $cover = $entity->getCover();
 
-            if (!empty($file)) {
+            if (!empty($file)  && !file_exists($this->getFilePath($file))) {
                 $fileName = md5(uniqid()).'.'.$file->guessExtension();
                 $file->move(
                     $this->getFilePath(),
@@ -64,7 +64,7 @@ class BookSubscriber implements EventSubscriber
                 $entity->setFile($fileName);
             }
 
-            if (!empty($cover)) {
+            if (!empty($cover) && !file_exists($this->getCoverPath($cover))) {
                 $coverName = md5(uniqid()).'.'.$cover->guessExtension();
                 $cover->move(
                     $this->getCoverPath(),
@@ -83,24 +83,32 @@ class BookSubscriber implements EventSubscriber
 
         if ($entity instanceof Book) {
             if ($file = $entity->getFile()) {
-                unlink($this->getFilePath().$file);
+                $filePath = $this->getFilePath($file);
+
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
             }
 
             if ($cover = $entity->getCover()) {
-                unlink($this->getCoverPath().$cover);
+                $coverPath = $this->getCoverPath($cover);
+
+                if (file_exists($coverPath)) {
+                    unlink($coverPath);
+                }
             }
         }
 
         return;
     }
 
-    protected function getFilePath()
+    protected function getFilePath($file = '')
     {
-        return __DIR__.'/../../../web/uploads/covers/';
+        return __DIR__."/../../../web/uploads/files/{$file}";
     }
 
-    protected function getCoverPath()
+    protected function getCoverPath($cover = '')
     {
-        return __DIR__.'/../../../web/uploads/files/';
+        return __DIR__."/../../../web/uploads/covers/{$cover}";
     }
 }

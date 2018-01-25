@@ -3,6 +3,7 @@
 namespace BookBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Book
@@ -39,6 +40,11 @@ class Book
      * @var string
      *
      * @ORM\Column(name="cover", type="string", length=255, nullable=true)
+     *
+     * @Assert\Image(
+     *      mimeTypes = {"image/png", "image/jpeg"},
+     *      mimeTypesMessage = "Please upload a png/jpeg"
+     * )
      */
     private $cover;
 
@@ -46,6 +52,10 @@ class Book
      * @var string
      *
      * @ORM\Column(name="file", type="string", length=255, nullable=true)
+     *
+     * @Assert\File(
+     *     maxSize = "5M"
+     * )
      */
     private $file;
 
