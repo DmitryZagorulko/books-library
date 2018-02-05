@@ -79,14 +79,27 @@ class BookController extends Controller
      */
     public function editAction(Request $request, Book $book)
     {
+        $uploadsPath = $this->container->getParameter('kernel.root_dir') . '/../web/uploads';
+        $cover = $book->getCover();
+        $file = $book->getFile();
+
         $deleteForm = $this->createDeleteForm($book);
         $editForm = $this->createForm('BookBundle\Form\BookType', $book);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
+            if ($editForm->get('clear_cover')->getData() && !empty($cover)) {
+                unlink($uploadsPath."/covers/{$cover}");
+                $book->clearCover();
+            }
+
+            if ($editForm->get('clear_file')->getData() && !empty($file)) {
+                unlink($uploadsPath."/files/{$file}");
+                $book->clearFile();
+            }
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('_index');
+            return $this->redirectToRoute('_edit', array('id' => $book->getId()));
         }
 
         return $this->render('@Book/book/edit.html.twig', array(

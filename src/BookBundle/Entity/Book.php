@@ -157,6 +157,17 @@ class Book
     }
 
     /**
+     * Clear cover
+     *
+     * @return Book
+     */
+    public function clearCover()
+    {
+        $this->cover = null;
+
+        return $this;
+    }
+    /**
      * Set file
      *
      * @param string $file
@@ -178,6 +189,18 @@ class Book
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Clear file
+     *
+     * @return Book
+     */
+    public function clearFile()
+    {
+        $this->file = null;
+
+        return $this;
     }
 
     /**

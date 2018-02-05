@@ -9,6 +9,12 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class BookSubscriber implements EventSubscriber
 {
+    protected $path;
+
+    public function __construct($path)
+    {
+        $this->path = $path;
+    }
     public function getSubscribedEvents()
     {
         return array(
@@ -104,11 +110,11 @@ class BookSubscriber implements EventSubscriber
 
     protected function getFilePath($file = '')
     {
-        return __DIR__."/../../../web/uploads/files/{$file}";
+        return $this->path."/../web/uploads/files/{$file}";
     }
 
     protected function getCoverPath($cover = '')
     {
-        return __DIR__."/../../../web/uploads/covers/{$cover}";
+        return $this->path."/../web/uploads/covers/{$cover}";
     }
 }

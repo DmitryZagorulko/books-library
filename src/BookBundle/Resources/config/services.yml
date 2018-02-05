@@ -2,3 +2,4 @@ services:
     BookBundle\EventSubscriber\BookSubscriber:
             tags:
                 - { name: doctrine.event_subscriber, connection: default }
+            arguments: ['%kernel.root_dir%']

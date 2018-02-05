@@ -2,11 +2,14 @@
 
 namespace BookBundle\Form;
 
+use BookBundle\Entity\Book;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use BookBundle\Entity\Book;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\HttpFoundation\File\File;
 
 class BookType extends AbstractType
 {
@@ -24,8 +27,20 @@ class BookType extends AbstractType
                 [
                     'data_class' => null,
                     'required' => false,
-                    'empty_data' =>$options['data']->getCover()
+                    'empty_data' =>
+                        $options['data']->getCover()
+                            ? new File(__DIR__.'/../../../web/uploads/covers/'. $options['data']->getCover())
+                            : null
                 ]
+            )
+            ->add(
+                'clear_cover',
+                CheckBoxType::class,
+                array(
+                    'label' => 'Clear cover',
+                    'mapped' => false,
+                    'required' => false,
+                )
             )
             ->add(
                 'file',
@@ -33,8 +48,20 @@ class BookType extends AbstractType
                 [
                     'data_class' => null,
                     'required' => false,
-                    'empty_data' =>$options['data']->getFile()
+                    'empty_data' =>
+                        $options['data']->getFile()
+                            ? new File(__DIR__.'/../../../web/uploads/files/'. $options['data']->getFile())
+                            : null
                 ]
+            )
+            ->add(
+                'clear_file',
+                CheckBoxType::class,
+                array(
+                    'label' => 'Clear file',
+                    'mapped' => false,
+                    'required' => false,
+                )
             )
             ->add('readIt', null, ['widget' => 'single_text'])
             ->add('allowDownload');

@@ -4,49 +4,29 @@
     <h1>Books list</h1>
     
     {% if is_granted('ROLE_ADMIN') %}
-        <ul>
-            <li>
-                <a href="{{ path('_new') }}">Create a new book</a>
-            </li>
-        </ul>
+        <a href="{{ path('_new') }}">Create a new book</a>
     {% endif %}
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Author</th>
-                <th>Cover</th>
-                <th>File</th>
-                <th>Readit</th>
-                <th>Allowdownload</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+          
+    <div class="books row">
         {% for book in books %}
-            <tr>
-                <td>{{ book.name }}</td>
-                <td>{{ book.author }}</td>
+            <div class ="book col-xs-12 col-sm-6 col-md-4 col-lg-2">
                 {% if book.cover %}
-                    <td><img src="{{asset('uploads/covers/') ~ book.cover}}"/></td>
+                    <div class="cover">
+                        <img src="{{asset('uploads/covers/') ~ book.cover}}"/>
+                    </div>
                 {% endif %}
-                {% if book.file %}
-                    <td><img src="{{asset('uploads/files/') ~ book.file}}"/></td>
+                <p>{{ book.name }}</p>
+                <p>{{ book.author }}</p>
+                <div>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</div>
+                {% if book.file and (book.allowDownload or is_granted('ROLE_ADMIN'))%}
+                    <a class="download" href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
                 {% endif %}
-                <td>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</td>
-                <td>{% if book.allowDownload %}Yes{% else %}No{% endif %}</td>
                 {% if is_granted('ROLE_ADMIN') %}
-                    <td>
-                        <ul>
-                            <li>
-                                <a href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
-                            </li>
-                        </ul>
-                    </td>
+                    <div>
+                        <a href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
+                    </div>
                 {% endif %}
-            </tr>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 {% endblock %}
