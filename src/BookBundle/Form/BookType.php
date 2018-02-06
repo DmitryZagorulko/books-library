@@ -34,15 +34,6 @@ class BookType extends AbstractType
                 ]
             )
             ->add(
-                'clear_cover',
-                CheckBoxType::class,
-                array(
-                    'label' => 'Clear cover',
-                    'mapped' => false,
-                    'required' => false,
-                )
-            )
-            ->add(
                 'file',
                 FileType::class,
                 [
@@ -53,15 +44,6 @@ class BookType extends AbstractType
                             ? new File(__DIR__.'/../../../web/uploads/files/'. $options['data']->getFile())
                             : null
                 ]
-            )
-            ->add(
-                'clear_file',
-                CheckBoxType::class,
-                array(
-                    'label' => 'Clear file',
-                    'mapped' => false,
-                    'required' => false,
-                )
             )
             ->add('readIt', null, ['widget' => 'single_text'])
             ->add('allowDownload');

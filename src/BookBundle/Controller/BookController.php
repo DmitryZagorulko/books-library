@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
  * Book controller.
@@ -85,6 +86,27 @@ class BookController extends Controller
 
         $deleteForm = $this->createDeleteForm($book);
         $editForm = $this->createForm('BookBundle\Form\BookType', $book);
+
+        $editForm
+            ->add(
+                'clear_cover',
+                CheckBoxType::class,
+                array(
+                    'label' => 'Clear cover',
+                    'mapped' => false,
+                    'required' => false,
+                )
+            )
+            ->add(
+                'clear_file',
+                CheckBoxType::class,
+                array(
+                    'label' => 'Clear file',
+                    'mapped' => false,
+                    'required' => false,
+                )
+            );
+
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
