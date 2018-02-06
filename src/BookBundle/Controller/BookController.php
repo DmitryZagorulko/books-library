@@ -110,6 +110,14 @@ class BookController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
+            if (empty($editForm->get('cover')->getData())) {
+                $book->setCover($cover);
+            }
+
+            if (empty($editForm->get('file')->getData())) {
+                $book->setFile($file);
+            }
+
             if ($editForm->get('clear_cover')->getData() && !empty($cover)) {
                 unlink($uploadsPath."/covers/{$cover}");
                 $book->clearCover();
@@ -119,6 +127,7 @@ class BookController extends Controller
                 unlink($uploadsPath."/files/{$file}");
                 $book->clearFile();
             }
+
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('_edit', array('id' => $book->getId()));

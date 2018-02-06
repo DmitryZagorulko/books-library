@@ -7,19 +7,19 @@
         <a href="{{ path('_new') }}">Create a new book</a>
     {% endif %}
           
-    <div class="books row">
+    <div class="row">
         {% for book in books %}
-            <div class ="book col-xs-12 col-sm-6 col-md-4 col-lg-2">
+            <div class ="col-xs-12 col-sm-6 col-md-4 col-lg-2">
                 {% if book.cover %}
-                    <div class="cover">
-                        <img src="{{asset('uploads/covers/') ~ book.cover}}"/>
+                    <div>
+                        <img {{ getImage('uploads/covers/' ~ book.cover, 100, 150) }}/>
                     </div>
                 {% endif %}
                 <p>{{ book.name }}</p>
                 <p>{{ book.author }}</p>
                 <div>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</div>
                 {% if book.file and (book.allowDownload or is_granted('ROLE_ADMIN'))%}
-                    <a class="download" href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
+                    <a href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
                     <div>

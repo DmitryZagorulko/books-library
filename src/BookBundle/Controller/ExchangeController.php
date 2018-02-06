@@ -71,6 +71,7 @@ class ExchangeController extends Controller
     public function editAction(Request $request)
     {
     }
+    
     /**
      * Get invalid response.
      *

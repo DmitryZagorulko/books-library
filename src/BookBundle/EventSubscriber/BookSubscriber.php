@@ -15,6 +15,7 @@ class BookSubscriber implements EventSubscriber
     {
         $this->path = $path;
     }
+    
     public function getSubscribedEvents()
     {
         return array(

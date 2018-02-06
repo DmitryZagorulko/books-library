@@ -7,9 +7,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\HttpFoundation\File\File;
 
 class BookType extends AbstractType
 {
@@ -27,10 +24,6 @@ class BookType extends AbstractType
                 [
                     'data_class' => null,
                     'required' => false,
-                    'empty_data' =>
-                        $options['data']->getCover()
-                            ? new File(__DIR__.'/../../../web/uploads/covers/'. $options['data']->getCover())
-                            : null
                 ]
             )
             ->add(
@@ -39,10 +32,6 @@ class BookType extends AbstractType
                 [
                     'data_class' => null,
                     'required' => false,
-                    'empty_data' =>
-                        $options['data']->getFile()
-                            ? new File(__DIR__.'/../../../web/uploads/files/'. $options['data']->getFile())
-                            : null
                 ]
             )
             ->add('readIt', null, ['widget' => 'single_text'])
