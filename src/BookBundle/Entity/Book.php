@@ -4,12 +4,14 @@ namespace BookBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Book
  *
  * @ORM\Table(name="book")
  * @ORM\Entity(repositoryClass="BookBundle\Repository\BookRepository")
+ * @Serializer\ExclusionPolicy("none")
  */
 class Book
 {
@@ -19,6 +21,8 @@ class Book
      * @ORM\Column(name="id", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     *
+     * @Serializer\ReadOnly()
      */
     private $id;
 
@@ -45,6 +49,8 @@ class Book
      *      mimeTypes = {"image/png", "image/jpeg"},
      *      mimeTypesMessage = "Please upload a png/jpeg"
      * )
+     *
+     * @Serializer\ReadOnly()
      */
     private $cover;
 
@@ -56,6 +62,8 @@ class Book
      * @Assert\File(
      *     maxSize = "5M"
      * )
+     *
+     * @Serializer\ReadOnly()
      */
     private $file;
 
@@ -63,6 +71,8 @@ class Book
      * @var \DateTime
      *
      * @ORM\Column(name="read_it", type="date")
+     *
+     * @Serializer\Type("DateTime<'Y-m-d'>")
      */
     private $readIt;
 
@@ -70,6 +80,7 @@ class Book
      * @var bool
      *
      * @ORM\Column(name="allow_download", type="boolean")
+     *
      */
     private $allowDownload;
 

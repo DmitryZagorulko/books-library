@@ -17,13 +17,19 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  */
 class ExchangeController extends Controller
 {
-    protected $apiKey;
+    protected $invalidApiKey = false;
 
     public function setContainer(ContainerInterface $container = null)
     {
         parent::setContainer($container);
 
-        $this->apiKey = $this->container->getParameter('api_key');
+        $apiKey = $this->container->getParameter('api_key');
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $reqApiKey = $request->request->get('apiKey');
+
+        if (empty($reqApiKey) || $reqApiKey != $apiKey) {
+            $this->invalidApiKey = $this->invalidResponse('Invalid apiKey');
+        }
     }
 
     /**
@@ -36,10 +42,8 @@ class ExchangeController extends Controller
      */
     public function listAction(Request $request)
     {
-        $reqApiKey = $request->query->get('apiKey');
-
-        if (empty($reqApiKey) || $reqApiKey != $this->apiKey) {
-            return $this->invalidResponse('Invalid apiKey');
+        if ($this->invalidApiKey) {
+            return $this->invalidApiKey;
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -51,13 +55,29 @@ class ExchangeController extends Controller
     /**
      * Add book.
      *
-     * @Route("/add ")
+     * @Route("/add")
      *
      * @param Request $request
      * @return Response
      */
     public function addAction(Request $request)
     {
+        if ($this->invalidApiKey) {
+            return $this->invalidApiKey;
+        }
+        $bookRequest = $request->request->get('book');
+        $serializer = $this->container->get('jms_serializer');
+
+        $bookCreate = $serializer->deserialize(
+            $bookRequest,
+            Book::class,
+            'json'
+        );
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($bookCreate);
+        $em->flush();
+
+        return new JsonResponse($bookRequest);
     }
 
     /**
@@ -68,10 +88,24 @@ class ExchangeController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function editAction(Request $request)
+    public function editAction(Request $request, Book $book)
     {
+        if ($this->invalidApiKey) {
+            return $this->invalidApiKey;
+        }
+
+        $bookRequest = $request->request->get('book');
+        $serializer = $this->container->get('jms_serializer');
+
+        $bookCreate = $serializer->deserialize(
+            $bookRequest,
+            Book::class,
+            'json'
+        );
+
+        return new Response($bookCreate);
     }
-    
+
     /**
      * Get invalid response.
      *
