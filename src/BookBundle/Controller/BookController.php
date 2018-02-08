@@ -26,12 +26,12 @@ class BookController extends Controller
      */
     public function indexAction()
     {
-        $cache = new FilesystemAdapter;
+        $cache = new FilesystemAdapter();
         $booksAll = $cache->getItem('books.all');
 
         if (!$booksAll->isHit()) {
             $em = $this->getDoctrine()->getManager();
-            $books = $em->getRepository('BookBundle:Book')->findAll();
+            $books = $em->getRepository('BookBundle:Book')->findBy([], ['readIt' => 'DESC']);
             $booksAll->set($books);
             $booksAll->expiresAfter(\DateInterval::createFromDateString('24 hour'));
             $cache->save($booksAll);
