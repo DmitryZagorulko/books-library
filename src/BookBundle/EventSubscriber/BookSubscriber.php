@@ -13,9 +13,9 @@ class BookSubscriber implements EventSubscriber
 
     public function __construct($path)
     {
-        $this->path = $path;
+        $this->path = $path . "/../web";
     }
-    
+
     public function getSubscribedEvents()
     {
         return array(
@@ -62,21 +62,25 @@ class BookSubscriber implements EventSubscriber
             $file = $entity->getFile();
             $cover = $entity->getCover();
 
-            if (!empty($file)  && !file_exists($this->getFilePath($file))) {
+            if (!empty($file)  && !file_exists($this->path . $entity->getPathFile())) {
                 $fileName = md5(uniqid()).'.'.$file->guessExtension();
+
                 $file->move(
-                    $this->getFilePath(),
+                    $this->path . "/uploads/files/",
                     $fileName
                 );
+
                 $entity->setFile($fileName);
             }
 
-            if (!empty($cover) && !file_exists($this->getCoverPath($cover))) {
+            if (!empty($cover) && !file_exists($this->path . $entity->getPathCover())) {
                 $coverName = md5(uniqid()).'.'.$cover->guessExtension();
+
                 $cover->move(
-                    $this->getCoverPath(),
+                    $this->path . "/uploads/covers/",
                     $coverName
                 );
+
                 $entity->setCover($coverName);
             }
         }
@@ -89,16 +93,16 @@ class BookSubscriber implements EventSubscriber
         $entity = $args->getEntity();
 
         if ($entity instanceof Book) {
-            if ($file = $entity->getFile()) {
-                $filePath = $this->getFilePath($file);
+            if (!empty($entity->getFile())) {
+                $filePath = $this->path . $entity->getPathFile();
 
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
             }
 
-            if ($cover = $entity->getCover()) {
-                $coverPath = $this->getCoverPath($cover);
+            if (!empty($entity->getCover())) {
+                $coverPath = $this->path . $entity->getPathCover();
 
                 if (file_exists($coverPath)) {
                     unlink($coverPath);
@@ -107,15 +111,5 @@ class BookSubscriber implements EventSubscriber
         }
 
         return;
-    }
-
-    protected function getFilePath($file = '')
-    {
-        return $this->path."/../web/uploads/files/{$file}";
-    }
-
-    protected function getCoverPath($cover = '')
-    {
-        return $this->path."/../web/uploads/covers/{$cover}";
     }
 }

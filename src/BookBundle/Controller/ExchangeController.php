@@ -8,7 +8,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use JMS\Serializer\Expression\ExpressionEvaluator;
+use JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\Exception\Exception as JmsException;
 
 /**
  * Exchange controller.
@@ -68,17 +73,22 @@ class ExchangeController extends Controller
         $bookRequest = $request->request->get('book');
         $serializer = $this->container->get('jms_serializer');
 
-        $bookCreate = $serializer->deserialize(
-            $bookRequest,
-            Book::class,
-            'json'
-        );
+        try {
+            $bookCreate = $serializer->deserialize(
+                $bookRequest,
+                Book::class,
+                'json',
+                DeserializationContext::create()->setGroups(array('edit'))
+            );
+        } catch (JmsException $ex) {
+            return $this->invalidResponse($ex->getMessage());
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bookCreate);
         $em->flush();
 
-        return new JsonResponse($bookRequest);
+        return $this->sucessfullResponse($bookCreate->getId());
     }
 
     /**
@@ -98,31 +108,36 @@ class ExchangeController extends Controller
         $bookRequest = $request->request->get('book');
         $serializer = $this->container->get('jms_serializer');
 
-        $bookCreate = $serializer->deserialize(
-            $bookRequest,
-            Book::class,
-            'json'
-        );
-
-        if (!empty($bookCreate->getName())) {
-            $book->setName($bookCreate->getName());
+        try {
+            $bookEdit = $serializer->deserialize(
+                $bookRequest,
+                Book::class,
+                'json',
+                DeserializationContext::create()->setGroups(array('edit'))
+            );
+        } catch (JmsException $ex) {
+            return $this->invalidResponse($ex->getMessage());
         }
 
-        if (!empty($bookCreate->getAuthor())) {
-            $book->setAuthor($bookCreate->getAuthor());
+        if (!empty($bookEdit->getName())) {
+            $book->setName($bookEdit->getName());
         }
 
-        if ($bookCreate->getReadIt()) {
-            $book->setReadIt($bookCreate->getReadIt());
+        if (!empty($bookEdit->getAuthor())) {
+            $book->setAuthor($bookEdit->getAuthor());
         }
 
-        if ($bookCreate->getAllowDownload()) {
-            $book->setAllowDownload($bookCreate->getAllowDownload());
+        if (!empty($bookEdit->getReadIt())) {
+            $book->setReadIt($bookEdit->getReadIt());
+        }
+
+        if (!empty($bookEdit->getAllowDownload())) {
+            $book->setAllowDownload($bookEdit->getAllowDownload());
         }
 
         $this->getDoctrine()->getManager()->flush();
 
-        return new Response($book->getId());
+        return $this->sucessfullResponse($book->getId());
     }
 
     /**
@@ -152,8 +167,15 @@ class ExchangeController extends Controller
             'response' => $result
         ];
 
-        $serializer = $this->container->get('jms_serializer');
-        $requestModel = $serializer->serialize($response, 'json');
+        $serializer = SerializerBuilder::create()
+            ->setExpressionEvaluator(new ExpressionEvaluator(new ExpressionLanguage()))
+            ->build();
+
+        try {
+            $requestModel = $serializer->serialize($response, 'json');
+        } catch (JmsException $ex) {
+            return $this->invalidResponse($ex->getMessage());
+        }
 
         return new Response($requestModel);
     }

@@ -30,6 +30,8 @@ class Book
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=40)
+     *
+     * @Serializer\Groups({"edit"})
      */
     private $name;
 
@@ -37,6 +39,8 @@ class Book
      * @var string
      *
      * @ORM\Column(name="author", type="string", length=40)
+     *
+     * @Serializer\Groups({"edit"})
      */
     private $author;
 
@@ -51,6 +55,7 @@ class Book
      * )
      *
      * @Serializer\ReadOnly()
+     * @Serializer\Accessor(getter="getPathCover",setter="setCover")
      */
     private $cover;
 
@@ -59,11 +64,11 @@ class Book
      *
      * @ORM\Column(name="file", type="string", length=255, nullable=true)
      *
-     * @Assert\File(
-     *     maxSize = "5M"
-     * )
+     * @Assert\File(maxSize = "5M")
      *
      * @Serializer\ReadOnly()
+     * @Serializer\Accessor(getter="getPathFile",setter="setFile")
+     * @Serializer\Expose(if="object.getAllowDownload() === true")
      */
     private $file;
 
@@ -73,6 +78,7 @@ class Book
      * @ORM\Column(name="read_it", type="date")
      *
      * @Serializer\Type("DateTime<'Y-m-d'>")
+     * @Serializer\Groups({"edit"})
      */
     private $readIt;
 
@@ -80,6 +86,8 @@ class Book
      * @var bool
      *
      * @ORM\Column(name="allow_download", type="boolean")
+     *
+     * @Serializer\Groups({"edit"})
      *
      */
     private $allowDownload;
@@ -168,6 +176,16 @@ class Book
     }
 
     /**
+     * Get path cover
+     *
+     * @return string
+     */
+    public function getPathCover()
+    {
+        return $this->cover ? "/uploads/covers/" . $this->cover : null;
+    }
+
+    /**
      * Clear cover
      *
      * @return Book
@@ -200,6 +218,16 @@ class Book
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Get path file
+     *
+     * @return string
+     */
+    public function getPathFile()
+    {
+        return $this->file ? "/uploads/files/" . $this->file : null;
     }
 
     /**

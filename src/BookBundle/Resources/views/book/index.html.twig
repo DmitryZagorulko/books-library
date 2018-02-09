@@ -2,30 +2,32 @@
 
 {% block body %}
     <h1>Books list</h1>
-    
+
     {% if is_granted('ROLE_ADMIN') %}
         <a href="{{ path('_new') }}">Create a new book</a>
     {% endif %}
-          
+
     <div class="row">
         {% for book in books %}
             <div class ="col-xs-12 col-sm-6 col-md-4 col-lg-2">
-                {% if book.cover %}
-                    <div>
-                        <img {{ getImage('uploads/covers/' ~ book.cover, 100, 150) }}/>
+                <div class="book">
+                    <div class="cover">
+                        {% if book.cover %}
+                            <img {{ getImage('uploads/covers/' ~ book.cover, 100, 150) }}/>
+                        {% endif %}
                     </div>
-                {% endif %}
-                <p>{{ book.name }}</p>
-                <p>{{ book.author }}</p>
-                <div>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</div>
-                {% if book.file and (book.allowDownload or is_granted('ROLE_ADMIN'))%}
-                    <a href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
-                {% endif %}
-                {% if is_granted('ROLE_ADMIN') %}
-                    <div>
-                        <a href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
-                    </div>
-                {% endif %}
+                    <p class="name">{{ book.name }}</p>
+                    <p class="author">{{ book.author }}</p>
+                    <p>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</p>
+                    {% if book.file and (book.allowDownload or is_granted('ROLE_ADMIN'))%}
+                        <a href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
+                    {% endif %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <div>
+                            <a href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         {% endfor %}
     </div>
