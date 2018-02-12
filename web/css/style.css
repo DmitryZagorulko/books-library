@@ -1,0 +1,24 @@
+.books {
+    margin-top: 10px;
+}
+
+.book{
+    height: 335px;
+    border: 1px #286090 solid;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.book .cover {
+    height: 170px;
+    width: 100px;
+    margin: 0px auto;
+}
+
+.book p {
+    text-align: center;
+}
+.book a {
+    display: block;
+    margin: 0 auto 10px;
+}

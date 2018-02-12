@@ -4,10 +4,10 @@
     <h1>Books list</h1>
 
     {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('_new') }}">Create a new book</a>
+        <a class="btn btn-default"href="{{ path('_new') }}">Create a new book</a>
     {% endif %}
 
-    <div class="row">
+    <div class="row books">
         {% for book in books %}
             <div class ="col-xs-12 col-sm-6 col-md-4 col-lg-2">
                 <div class="book">
@@ -20,12 +20,10 @@
                     <p class="author">{{ book.author }}</p>
                     <p>{% if book.readIt %}{{ book.readIt|date('Y-m-d') }}{% endif %}</p>
                     {% if book.file and (book.allowDownload or is_granted('ROLE_ADMIN'))%}
-                        <a href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
+                        <a class="btn btn-primary btn-xs" href="{{asset('uploads/files/') ~ book.file}}" download/>download</a>
                     {% endif %}
                     {% if is_granted('ROLE_ADMIN') %}
-                        <div>
-                            <a href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
-                        </div>
+                        <a class="btn btn-default btn-xs" href="{{ path('_edit', { 'id': book.id }) }}">edit</a>
                     {% endif %}
                 </div>
             </div>
