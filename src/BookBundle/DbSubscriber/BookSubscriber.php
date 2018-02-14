@@ -1,6 +1,6 @@
 <?php
 
-namespace BookBundle\EventSubscriber;
+namespace BookBundle\DbSubscriber;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
@@ -18,11 +18,11 @@ class BookSubscriber implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             'prePersist',
             'preUpdate',
             'preRemove'
-        );
+        ];
     }
 
     public function preUpdate(LifecycleEventArgs $args)
@@ -63,7 +63,7 @@ class BookSubscriber implements EventSubscriber
             $cover = $entity->getCover();
 
             if (!empty($file)  && !file_exists($this->path . $entity->getPathFile())) {
-                $fileName = md5(uniqid()).'.'.$file->guessExtension();
+                $fileName = md5(uniqid()) . '.' . $file->guessExtension();
 
                 $file->move(
                     $this->path . "/uploads/files/",
@@ -74,7 +74,7 @@ class BookSubscriber implements EventSubscriber
             }
 
             if (!empty($cover) && !file_exists($this->path . $entity->getPathCover())) {
-                $coverName = md5(uniqid()).'.'.$cover->guessExtension();
+                $coverName = md5(uniqid()) . '.' . $cover->guessExtension();
 
                 $cover->move(
                     $this->path . "/uploads/covers/",

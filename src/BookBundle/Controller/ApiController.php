@@ -16,14 +16,17 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Exception\Exception as JmsException;
 
 /**
- * Exchange controller.
+ * Api controller.
  *
  * @Route("/api/v1/books")
  */
-class ExchangeController extends Controller
+class ApiController extends Controller
 {
     protected $invalidApiKey = false;
 
+    /**
+     * @param ContainerInterface|null $container
+     */
     public function setContainer(ContainerInterface $container = null)
     {
         parent::setContainer($container);
@@ -47,7 +50,7 @@ class ExchangeController extends Controller
     public function listAction()
     {
         if ($this->invalidApiKey) {
-            return $this->invalidApiKey;
+            return new Response($this->invalidApiKey);
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -67,7 +70,7 @@ class ExchangeController extends Controller
     public function addAction(Request $request)
     {
         if ($this->invalidApiKey) {
-            return $this->invalidApiKey;
+            return new Response($this->invalidApiKey);
         }
 
         $bookRequest = $request->request->get('book');
@@ -78,7 +81,7 @@ class ExchangeController extends Controller
                 $bookRequest,
                 Book::class,
                 'json',
-                DeserializationContext::create()->setGroups(array('edit'))
+                DeserializationContext::create()->setGroups(['edit'])
             );
         } catch (JmsException $ex) {
             return $this->invalidResponse($ex->getMessage());
@@ -97,12 +100,13 @@ class ExchangeController extends Controller
      * @Route("/{id}/edit")
      *
      * @param Request $request
-     * @return Response
+     * @param Book $book
+     * @return JsonResponse|Response
      */
     public function editAction(Request $request, Book $book)
     {
         if ($this->invalidApiKey) {
-            return $this->invalidApiKey;
+            return new Response($this->invalidApiKey);
         }
 
         $bookRequest = $request->request->get('book');
@@ -113,7 +117,7 @@ class ExchangeController extends Controller
                 $bookRequest,
                 Book::class,
                 'json',
-                DeserializationContext::create()->setGroups(array('edit'))
+                DeserializationContext::create()->setGroups(['edit'])
             );
         } catch (JmsException $ex) {
             return $this->invalidResponse($ex->getMessage());
@@ -143,7 +147,7 @@ class ExchangeController extends Controller
     /**
      * Get invalid response.
      *
-     * @param type $message
+     * @param string $message
      * @return JsonResponse
      */
     protected function invalidResponse($message = "Unknown error")
@@ -157,8 +161,8 @@ class ExchangeController extends Controller
     /**
      * Get successfull response.
      *
-     * @param type $result
-     * @return Response
+     * @param $result
+     * @return JsonResponse|Response
      */
     protected function sucessfullResponse($result)
     {

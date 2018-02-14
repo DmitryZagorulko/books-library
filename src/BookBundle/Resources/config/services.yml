@@ -1,8 +1,8 @@
 services:
-    BookBundle\EventSubscriber\BookSubscriber:
-            tags:
-                - { name: doctrine.event_subscriber, connection: default }
-            arguments: ['%kernel.root_dir%']
+    BookBundle\DbSubscriber\BookSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+        arguments: ['%kernel.root_dir%']
     BookBundle\Twig\ImageExtension:
         tags:
             - { name: twig.extension }

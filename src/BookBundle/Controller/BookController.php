@@ -23,6 +23,8 @@ class BookController extends Controller
      *
      * @Route("/", name="_index")
      * @Method("GET")
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction()
     {
@@ -39,9 +41,9 @@ class BookController extends Controller
 
         $booksCache = $booksAll->get();
 
-        return $this->render('@Book/book/index.html.twig', array(
+        return $this->render('@Book/book/index.html.twig', [
             'books' => $booksCache,
-        ));
+        ]);
     }
 
     /**
@@ -50,6 +52,9 @@ class BookController extends Controller
      * @Route("/new", name="_new")
      * @Method({"GET", "POST"})
      * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function newAction(Request $request)
     {
@@ -65,10 +70,10 @@ class BookController extends Controller
             return $this->redirectToRoute('_index');
         }
 
-        return $this->render('@Book/book/new.html.twig', array(
+        return $this->render('@Book/book/new.html.twig', [
             'book' => $book,
             'form' => $form->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -77,6 +82,10 @@ class BookController extends Controller
      * @Route("/{id}/edit", name="_edit")
      * @Method({"GET", "POST"})
      * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @param Book $book
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function editAction(Request $request, Book $book)
     {
@@ -91,20 +100,20 @@ class BookController extends Controller
             ->add(
                 'clear_cover',
                 CheckBoxType::class,
-                array(
+                [
                     'label' => 'Clear cover',
                     'mapped' => false,
                     'required' => false,
-                )
+                ]
             )
             ->add(
                 'clear_file',
                 CheckBoxType::class,
-                array(
+                [
                     'label' => 'Clear file',
                     'mapped' => false,
                     'required' => false,
-                )
+                ]
             );
 
         $editForm->handleRequest($request);
@@ -130,14 +139,14 @@ class BookController extends Controller
 
             $this->getDoctrine()->getManager()->flush();
 
-            return $this->redirectToRoute('_edit', array('id' => $book->getId()));
+            return $this->redirectToRoute('_edit', ['id' => $book->getId()]);
         }
 
-        return $this->render('@Book/book/edit.html.twig', array(
+        return $this->render('@Book/book/edit.html.twig', [
             'book' => $book,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ));
+        ]);
     }
 
     /**
@@ -146,6 +155,10 @@ class BookController extends Controller
      * @Route("/book/{id}", name="_delete")
      * @Method("DELETE")
      * @Security("has_role('ROLE_ADMIN')")
+     *
+     * @param Request $request
+     * @param Book $book
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function deleteAction(Request $request, Book $book)
     {
@@ -164,14 +177,13 @@ class BookController extends Controller
     /**
      * Creates a form to delete a book entity.
      *
-     * @param Book $book The book entity
-     *
+     * @param Book $book
      * @return \Symfony\Component\Form\Form The form
      */
     private function createDeleteForm(Book $book)
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('_delete', array('id' => $book->getId())))
+            ->setAction($this->generateUrl('_delete', ['id' => $book->getId()]))
             ->setMethod('DELETE')
             ->getForm();
     }

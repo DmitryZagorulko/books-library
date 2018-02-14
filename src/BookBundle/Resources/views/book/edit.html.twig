@@ -5,13 +5,12 @@
 
     {{ form_start(edit_form) }}
         {{ form_widget(edit_form) }}
-        <input type="submit" value="Edit" />
+        <input class="btn btn-default" type="submit" value="Edit" />
+        <a class="btn btn-primary" href="{{ path('_index') }}">Back to the list</a>
     {{ form_end(edit_form) }}
 
-    <a href="{{ path('_index') }}">Back to the list</a>
-
     {{ form_start(delete_form) }}
-        <input type="submit" value="Delete">
+        <input type="submit" value="Delete" style="margin-top: 5px;">
     {{ form_end(delete_form) }}
 
 {% endblock %}
