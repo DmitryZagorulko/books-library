@@ -3,6 +3,7 @@
 namespace BookBundle\Controller;
 
 use BookBundle\Entity\Book;
+use BookBundle\Services\KeyCheck;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +14,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use JMS\Serializer\Expression\ExpressionEvaluator;
 use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\DeserializationContext;
-use JMS\Serializer\Exception\Exception as JmsException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Constraints\Date;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Api controller.
@@ -22,35 +28,28 @@ use JMS\Serializer\Exception\Exception as JmsException;
  */
 class ApiController extends Controller
 {
-    protected $invalidApiKey = false;
+    protected $checkApi;
 
     /**
-     * @param ContainerInterface|null $container
+     * @param \BookBundle\Services\KeyCheck $check
      */
-    public function setContainer(ContainerInterface $container = null)
+    public function __construct(KeyCheck $check)
     {
-        parent::setContainer($container);
-
-        $apiKey = $this->container->getParameter('api_key');
-        $request = $this->container->get('request_stack')->getCurrentRequest();
-        $reqApiKey = $request->request->get('apiKey');
-
-        if (empty($reqApiKey) || $reqApiKey != $apiKey) {
-            $this->invalidApiKey = $this->invalidResponse('Invalid apiKey');
-        }
+        $this->checkApi = $check;
     }
 
     /**
      * Get lists all book.
      *
-     * @Route("/")
+     * @Route("")
      *
+     * @Method("GET")
      * @return Response
      */
     public function listAction()
     {
-        if ($this->invalidApiKey) {
-            return new Response($this->invalidApiKey);
+        if ($this->checkApi->checkKey()) {
+            return new JsonResponse($this->checkApi->checkKey());
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -64,13 +63,14 @@ class ApiController extends Controller
      *
      * @Route("/add")
      *
+     * @Method("POST")
      * @param Request $request
      * @return Response
      */
     public function addAction(Request $request)
     {
-        if ($this->invalidApiKey) {
-            return new Response($this->invalidApiKey);
+        if ($this->checkApi->checkKey()) {
+            return new JsonResponse($this->checkApi->checkKey());
         }
 
         $bookRequest = $request->request->get('book');
@@ -83,15 +83,33 @@ class ApiController extends Controller
                 'json',
                 DeserializationContext::create()->setGroups(['edit'])
             );
-        } catch (JmsException $ex) {
-            return $this->invalidResponse($ex->getMessage());
+        } catch (\Throwable $ex) {
+            return new JsonResponse($this->checkApi->invalidResponse($ex->getMessage()));
+        }
+
+        $validator = Validation::createValidator();
+        $metadata = $validator->getMetadataFor(Book::class);
+        $metadata->addGetterConstraint('name', new NotBlank(), new Type("string"));
+        $metadata->addGetterConstraint('author', new NotBlank(), new Type("string"));
+        $metadata->addGetterConstraint('readIt', new NotBlank(), new Date());
+        $metadata->addGetterConstraint('allowDownload', new NotBlank(), new Type("bool"));
+        $violations = $validator->validate($bookCreate);
+
+        if (0 !== count($violations)) {
+            $arViolations = [];
+
+            foreach ($violations as $violation) {
+                $arViolations[] = $violation->getPropertyPath() . ' : ' . $violation->getMessage();
+            }
+
+            return new JsonResponse($this->checkApi->invalidResponse($arViolations));
         }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($bookCreate);
         $em->flush();
 
-        return $this->sucessfullResponse($bookCreate->getId());
+        return $this->sucessfullResponse(["id" => $bookCreate->getId()]);
     }
 
     /**
@@ -99,14 +117,15 @@ class ApiController extends Controller
      *
      * @Route("/{id}/edit")
      *
+     * @Method("POST")
      * @param Request $request
      * @param Book $book
      * @return JsonResponse|Response
      */
     public function editAction(Request $request, Book $book)
     {
-        if ($this->invalidApiKey) {
-            return new Response($this->invalidApiKey);
+        if ($this->checkApi->checkKey()) {
+            return new JsonResponse($this->checkApi->checkKey());
         }
 
         $bookRequest = $request->request->get('book');
@@ -119,8 +138,8 @@ class ApiController extends Controller
                 'json',
                 DeserializationContext::create()->setGroups(['edit'])
             );
-        } catch (JmsException $ex) {
-            return $this->invalidResponse($ex->getMessage());
+        } catch (\Throwable $ex) {
+            return new JsonResponse($this->checkApi->invalidResponse($ex->getMessage()));
         }
 
         if (!empty($bookEdit->getName())) {
@@ -141,21 +160,7 @@ class ApiController extends Controller
 
         $this->getDoctrine()->getManager()->flush();
 
-        return $this->sucessfullResponse($book->getId());
-    }
-
-    /**
-     * Get invalid response.
-     *
-     * @param string $message
-     * @return JsonResponse
-     */
-    protected function invalidResponse($message = "Unknown error")
-    {
-        return new JsonResponse([
-            'success' => false,
-            'errorMsg' => $message
-        ]);
+        return $this->sucessfullResponse(["id" => $book->getId()]);
     }
 
     /**
@@ -177,8 +182,8 @@ class ApiController extends Controller
 
         try {
             $requestModel = $serializer->serialize($response, 'json');
-        } catch (JmsException $ex) {
-            return $this->invalidResponse($ex->getMessage());
+        } catch (\Throwable $ex) {
+            return new JsonResponse($this->checkApi->invalidResponse($ex->getMessage()));
         }
 
         return new Response($requestModel);

@@ -1,8 +1,19 @@
 services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    BookBundle\:
+        resource: '../../*'
+        exclude: '../../{Entity,Repository,Resources,Tests}'
+
+    BookBundle\Controller\:
+        resource: '../../Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
     BookBundle\DbSubscriber\BookSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
         arguments: ['%kernel.root_dir%']
-    BookBundle\Twig\ImageExtension:
-        tags:
-            - { name: twig.extension }

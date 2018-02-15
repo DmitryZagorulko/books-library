@@ -7,15 +7,29 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use BookBundle\Entity\Book;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
+/**
+ * Class BookSubscriber
+ * @package BookBundle\DbSubscriber
+ */
 class BookSubscriber implements EventSubscriber
 {
+    /**
+     * @var string
+     */
     protected $path;
 
+    /**
+     * BookSubscriber constructor.
+     * @param $path
+     */
     public function __construct($path)
     {
         $this->path = $path . "/../web";
     }
 
+    /**
+     * @return array
+     */
     public function getSubscribedEvents()
     {
         return [
@@ -25,24 +39,36 @@ class BookSubscriber implements EventSubscriber
         ];
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function preUpdate(LifecycleEventArgs $args)
     {
         $this->clearCache();
         $this->upload($args);
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function prePersist(LifecycleEventArgs $args)
     {
         $this->clearCache();
         $this->upload($args);
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function preRemove(LifecycleEventArgs $args)
     {
         $this->clearCache();
         $this->remove($args);
     }
 
+    /**
+     *  Clear cache
+     */
     public function clearCache()
     {
         $cache = new FilesystemAdapter;
@@ -54,6 +80,9 @@ class BookSubscriber implements EventSubscriber
         return;
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function upload(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
@@ -88,6 +117,9 @@ class BookSubscriber implements EventSubscriber
         return;
     }
 
+    /**
+     * @param LifecycleEventArgs $args
+     */
     public function remove(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
